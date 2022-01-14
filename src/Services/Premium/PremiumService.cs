@@ -480,7 +480,7 @@ namespace ELO.Services
 
         public class Config
         {
-            public bool Enabled { get; set; } = true;
+            public bool Enabled { get; set; } = false;
 
             public ulong GuildId { get; set; }
 

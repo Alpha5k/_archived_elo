@@ -173,6 +173,7 @@ namespace ELO
                 return Console.ReadLine();
             });
 
+            /*
             var serverInvite = config.GetOrAddEntry("PremiumServerInvite", () =>
             {
                 Console.WriteLine("PremiumServerInvite:");
@@ -198,6 +199,7 @@ namespace ELO
                 Console.WriteLine("PremiumDeletionWebhookClientId: (Can be found in the webhook url)");
                 return Console.ReadLine();
             }));
+            */
 
             //Ensure the database is created. This should also verify connection
             using (var db = new Database())
@@ -211,11 +213,7 @@ namespace ELO
                             .AddSingleton(config)
                             .AddSingleton(new PremiumService.Config
                             {
-                                ServerInvite = serverInvite,
-                                AltLink = altLink,
-                                GuildId = guildId,
-                                DeletionWebhookChannel = premiumDeletionChannelId,
-                                DeletionWebhookClientId = premiumDeletionWebhookId
+                                Enabled = false
                             })
                             .AddSingleton<HelpService>()
                             .AddSingleton(new CommandService(commandConfig))

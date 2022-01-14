@@ -358,6 +358,114 @@ namespace ELO.Modules
             }
         }
 
+        [Command("Swap")]
+        [Summary("Swap the teams of 2 players.")]
+        [Preconditions.RequirePermission(PermissionLevel.Moderator)]
+        public virtual async Task SwapUserAsync(SocketGuildUser user1, SocketGuildUser user2)
+        {
+            using (var db = new Database())
+            {
+                var game = db.GameResults.AsQueryable().Where(x => x.LobbyId == Context.Channel.Id).OrderByDescending(x => x.GameId).FirstOrDefault();
+                if (game != null)
+                {
+                    await SwapUserAsync(game.GameId, user1, user2);
+                }
+            }
+        }
+
+        [Command("Swap")]
+        [Summary("Swap the teams of 2 players.")]
+        [Preconditions.RequirePermission(PermissionLevel.Moderator)]
+        public virtual async Task SwapUserAsync(int gameNumber, SocketGuildUser user1, SocketGuildUser user2)
+        {
+            using (var db = new Database())
+            {
+                var lobby = db.GetLobby(Context.Channel);
+                if (lobby == null)
+                {
+                    await Context.SimpleEmbedAsync("Current channel is not a lobby.", Color.Red);
+                    return;
+                }
+
+                var game = db.GameResults.FirstOrDefault(x => x.GameId == gameNumber && x.LobbyId == lobby.ChannelId);
+                if (game == null)
+                {
+                    await Context.SimpleEmbedAsync("Invalid game number.", Color.Red);
+                    return;
+                }
+
+                if (game.GameState != GameState.Undecided && game.GameState != GameState.Picking)
+                {
+                    await Context.SimpleEmbedAsync("This command can only be used with undecided games.", Color.Red);
+                    return;
+                }
+
+                if (db.GetUser(user1) == null)
+                {
+                    await Context.SimpleEmbedAsync($"{user1.Mention} is not registered.");
+                    return;
+                }
+
+                if (db.GetUser(user2) == null)
+                {
+                    await Context.SimpleEmbedAsync($"{user2.Mention} is not registered.");
+                    return;
+                }
+
+                var team1 = db.GetTeam1(game).ToArray();
+                var team2 = db.GetTeam2(game).ToArray();
+
+                var player1 = team1.SingleOrDefault(x => x.UserId == user1.Id);
+                if (player1 == null)
+                {
+                    player1 = team2.SingleOrDefault(x => x.UserId == user1.Id);
+                    if (player1 == null) {
+                        await Context.SimpleEmbedAsync($"{user1.Mention} is not present in the game.");
+                        return;
+                    }
+                }
+
+                var player2 = team1.SingleOrDefault(x => x.UserId == user2.Id);
+                if (player2 == null)
+                {
+                    player2 = team2.SingleOrDefault(x => x.UserId == user2.Id);
+                    if (player2 == null) {
+                        await Context.SimpleEmbedAsync($"{user2.Mention} is not present in the game.");
+                        return;
+                    }
+                }
+
+                if (player1.TeamNumber == player2.TeamNumber) {
+                    await Context.SimpleEmbedAsync($"{user1.Mention} and {user2.Mention} are on the same team.");
+                    return;
+                }
+
+                db.TeamPlayers.Remove(player1)
+                db.TeamPlayers.Add(new TeamPlayer
+                {
+                    ChannelId = game.LobbyId,
+                    GameNumber = game.GameId,
+                    UserId = user1.Id,
+                    TeamNumber = player2.TeamNumber,
+                    GuildId = Context.Guild.Id
+                });
+
+                db.TeamPlayers.Remove(player2)
+                db.TeamPlayers.Add(new TeamPlayer
+                {
+                    ChannelId = game.LobbyId,
+                    GameNumber = game.GameId,
+                    UserId = user2.Id,
+                    TeamNumber = player1.TeamNumber,
+                    GuildId = Context.Guild.Id
+                });
+
+                db.SaveChanges();
+
+                await Context.SimpleEmbedAsync($"Player {user1.Mention} was swapped with {user2.Mention}.");
+            }
+        }
+
         [Command("ForceJoin", RunMode = RunMode.Sync)]
         [Alias("FJ")]
         [Summary("Forcefully adds a user to queue, bypasses minimum points")]
