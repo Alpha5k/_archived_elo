@@ -440,7 +440,7 @@ namespace ELO.Modules
                     return;
                 }
 
-                db.TeamPlayers.Remove(player1)
+                db.TeamPlayers.Remove(player1);
                 db.TeamPlayers.Add(new TeamPlayer
                 {
                     ChannelId = game.LobbyId,
@@ -450,7 +450,7 @@ namespace ELO.Modules
                     GuildId = Context.Guild.Id
                 });
 
-                db.TeamPlayers.Remove(player2)
+                db.TeamPlayers.Remove(player2);
                 db.TeamPlayers.Add(new TeamPlayer
                 {
                     ChannelId = game.LobbyId,
