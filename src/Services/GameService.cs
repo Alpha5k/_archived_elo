@@ -135,12 +135,12 @@ namespace ELO.Services
 
                 if (team1)
                 {
-                    embed.AddField("Team 1", GetTeamInfo(cap1, team1p));
+                    embed.AddField("Team 1 - Heroes", GetTeamInfo(cap1, team1p));
                 }
 
                 if (team2)
                 {
-                    embed.AddField("Team 2", GetTeamInfo(cap2, team2p));
+                    embed.AddField("Team 2 - Villains", GetTeamInfo(cap2, team2p));
                 }
 
                 if (remainingPlayers)
@@ -250,12 +250,12 @@ namespace ELO.Services
 
             if (team1)
             {
-                embed.AddField("Team 1", GetTeamInfo(null, team1p));
+                embed.AddField("Team 1 - Heroes", GetTeamInfo(null, team1p));
             }
 
             if (team2)
             {
-                embed.AddField("Team 2", GetTeamInfo(null, team2p));
+                embed.AddField("Team 2 - Villains", GetTeamInfo(null, team2p));
             }
 
             if (remainingPlayers)
